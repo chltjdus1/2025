@@ -5,6 +5,7 @@ import streamlit as st
 # ----------------------------
 mood_foods = {
     "기분이 좋아요 😀": {
+        "키워드": ["좋아", "행복", "신남", "기분좋"],
         "음식": "파스타",
         "이미지": "https://cdn.pixabay.com/photo/2017/12/09/08/18/spaghetti-3001311_1280.jpg",
         "레시피": [
@@ -16,6 +17,7 @@ mood_foods = {
         ]
     },
     "우울해요 😔": {
+        "키워드": ["우울", "슬퍼", "눈물", "힘들"],
         "음식": "초콜릿 케이크",
         "이미지": "https://cdn.pixabay.com/photo/2017/01/26/02/06/chocolate-cake-2010993_1280.jpg",
         "레시피": [
@@ -26,6 +28,7 @@ mood_foods = {
         ]
     },
     "스트레스 받아요 😡": {
+        "키워드": ["화나", "짜증", "스트레스", "열받"],
         "음식": "라멘",
         "이미지": "https://cdn.pixabay.com/photo/2017/07/16/11/53/ramen-2509888_1280.jpg",
         "레시피": [
@@ -36,6 +39,7 @@ mood_foods = {
         ]
     },
     "피곤해요 😴": {
+        "키워드": ["피곤", "졸려", "지침", "힘듦"],
         "음식": "삼계탕",
         "이미지": "https://cdn.pixabay.com/photo/2020/06/22/08/56/chicken-soup-5327328_1280.jpg",
         "레시피": [
@@ -46,6 +50,7 @@ mood_foods = {
         ]
     },
     "설레는 기분 💕": {
+        "키워드": ["설레", "좋아하는사람", "두근", "사랑"],
         "음식": "초밥",
         "이미지": "https://cdn.pixabay.com/photo/2017/05/07/08/56/sushi-2297689_1280.jpg",
         "레시피": [
@@ -56,6 +61,7 @@ mood_foods = {
         ]
     },
     "외로워요 😢": {
+        "키워드": ["외로", "혼자", "쓸쓸"],
         "음식": "치즈 피자",
         "이미지": "https://cdn.pixabay.com/photo/2017/12/09/08/18/pizza-3007395_1280.jpg",
         "레시피": [
@@ -63,45 +69,6 @@ mood_foods = {
             "토마토소스를 도우 위에 바른다.",
             "치즈와 토핑을 올린다.",
             "오븐에 200도에서 15분간 굽는다."
-        ]
-    },
-    "행복해요 😍": {
-        "음식": "딸기 파르페",
-        "이미지": "https://cdn.pixabay.com/photo/2016/11/21/15/46/strawberry-1846080_1280.jpg",
-        "레시피": [
-            "컵에 시리얼을 깐다.",
-            "요거트를 넣고 딸기를 올린다.",
-            "생크림을 올리고 다시 과일을 얹는다.",
-            "민트 잎으로 장식한다."
-        ]
-    },
-    "긴장돼요 😬": {
-        "음식": "샌드위치",
-        "이미지": "https://cdn.pixabay.com/photo/2014/10/23/18/05/burger-500054_1280.jpg",
-        "레시피": [
-            "식빵에 마요네즈를 바른다.",
-            "햄, 치즈, 채소를 올린다.",
-            "다른 빵으로 덮는다.",
-            "반으로 잘라 접시에 담는다."
-        ]
-    },
-    "출근하기 싫어요 🏢": {
-        "음식": "아메리카노 & 크로와상",
-        "이미지": "https://cdn.pixabay.com/photo/2017/05/23/22/36/coffee-2341066_1280.jpg",
-        "레시피": [
-            "커피를 내린다.",
-            "크로와상을 데운다.",
-            "커피와 크로와상을 함께 즐긴다."
-        ]
-    },
-    "여행 가고 싶어요 ✈️": {
-        "음식": "타코",
-        "이미지": "https://cdn.pixabay.com/photo/2017/01/22/19/20/taco-2003468_1280.jpg",
-        "레시피": [
-            "토르티야를 데운다.",
-            "소고기를 볶고 양념한다.",
-            "채소와 고기를 넣고 접는다.",
-            "살사소스를 곁들인다."
         ]
     }
 }
@@ -113,28 +80,39 @@ st.set_page_config(page_title="기분별 음식 추천", page_icon="🍽️", la
 
 # 헤더
 st.title("🍽️ 기분 기반 음식 추천 웹사이트")
-st.write("기분을 선택하면 어울리는 음식을 추천하고, 레시피까지 알려드려요!")
+st.write("지금 기분을 입력하면 어울리는 음식을 추천해드려요!")
 
-# 기분 입력
-mood = st.selectbox("현재 기분을 선택하세요 👇", list(mood_foods.keys()))
+# 텍스트 입력
+user_mood = st.text_input("현재 기분을 입력하세요 👇")
 
-if mood:
-    food_info = mood_foods[mood]
+def find_food_by_mood(user_text):
+    for mood, info in mood_foods.items():
+        for keyword in info["키워드"]:
+            if keyword in user_text:
+                return mood, info
+    return None, None
 
-    # 카드 UI
-    st.markdown(
-        f"""
-        <div style="background-color:#f8f9fa; padding:20px; border-radius:15px; 
-        box-shadow:2px 2px 10px rgba(0,0,0,0.1); text-align:center;">
-            <h2>{food_info['음식']}</h2>
-            <img src="{food_info['이미지']}" width="300" 
-            style="border-radius:10px; margin:10px 0;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+if user_mood:
+    mood, food_info = find_food_by_mood(user_mood)
 
-    # 레시피 출력
-    st.subheader("📖 레시피")
-    for step in food_info["레시피"]:
-        st.write(f"- {step}")
+    if food_info:
+        # 카드 UI
+        st.markdown(
+            f"""
+            <div style="background-color:#f8f9fa; padding:20px; border-radius:15px; 
+            box-shadow:2px 2px 10px rgba(0,0,0,0.1); text-align:center;">
+                <h2>{food_info['음식']}</h2>
+                <img src="{food_info['이미지']}" width="300" 
+                style="border-radius:10px; margin:10px 0;">
+                <p><b>추천 이유:</b> {mood}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # 레시피 출력
+        st.subheader("📖 레시피")
+        for step in food_info["레시피"]:
+            st.write(f"- {step}")
+    else:
+        st.warning("😥 입력하신 기분을 이해하지 못했어요. 다른 표현으로 입력해보세요!")
