@@ -1,14 +1,27 @@
 import streamlit as st
-from transformers import pipeline
 
-# 1. 감정 분석 파이프라인 로드 (다국어 지원)
+# ----------------------------
+# HuggingFace Transformers 설치 여부 확인
+# ----------------------------
+try:
+    from transformers import pipeline
+except ImportError:
+    st.error("⚠️ 'transformers' 라이브러리가 설치되어 있지 않습니다. 터미널에서 아래 명령어를 실행하세요:\n\n"
+             "```bash\npip install transformers\n```")
+    st.stop()
+
+# ----------------------------
+# 감정 분석 파이프라인 로드
+# ----------------------------
 @st.cache_resource
 def load_sentiment_pipeline():
     return pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
 
 sentiment_pipeline = load_sentiment_pipeline()
 
-# 2. 기분별 음식 추천 데이터
+# ----------------------------
+# 기분별 음식 추천 데이터
+# ----------------------------
 mood_foods = {
     "긍정 (기분 좋아요)": {
         "음식": "파스타",
@@ -43,18 +56,20 @@ mood_foods = {
     }
 }
 
-# 3. Streamlit UI 구성
+# ----------------------------
+# Streamlit 앱 구성
+# ----------------------------
 st.set_page_config(page_title="AI 감정 음식 추천", page_icon="🤖🍽️", layout="centered")
 st.title("🤖 기분 입력 → AI 감정 분석 → 음식 추천")
 st.write("한국어로 기분을 입력하면, AI가 감정을 분석해 어울리는 음식을 추천해드려요!")
 
 # 텍스트 입력 받기
-user_input = st.text_input("지금 어떤 기분이신가요? 예: '오늘 너무 기뻐요!'")
+user_input = st.text_input("지금 어떤 기분이신가요? (예: '오늘 너무 기뻐요!')")
 
 if user_input:
     with st.spinner("AI가 기분을 분석 중이에요..."):
         result = sentiment_pipeline(user_input)[0]
-        label = result["label"]  # 예: '1 star' ~ '5 stars'
+        label = result["label"]  # '1 star' ~ '5 stars'
         score = result["score"]
 
     # 점수 기반 감정 구간 설정
@@ -67,7 +82,7 @@ if user_input:
 
     food_info = mood_foods[mood]
 
-    st.write(f"**AI 감정 분석 결과:** {label} ({mood}), 신뢰도: {score:.2f}")
+    st.success(f"**AI 감정 분석 결과:** {label} → {mood} (신뢰도: {score:.2f})")
 
     # 카드 스타일로 결과 표시
     st.markdown(f"""
@@ -82,4 +97,3 @@ if user_input:
     st.subheader("📖 레시피")
     for step in food_info["레시피"]:
         st.write(f"- {step}")
-
