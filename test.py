@@ -1,23 +1,23 @@
 import streamlit as st
 
 # ----------------------------
-# HuggingFace Transformers 설치 여부 확인
+# 간단한 한국어 감정 분석기 (키워드 기반)
 # ----------------------------
-try:
-    from transformers import pipeline
-except ImportError:
-    st.error("⚠️ 'transformers' 라이브러리가 설치되어 있지 않습니다. 터미널에서 아래 명령어를 실행하세요:\n\n"
-             "```bash\npip install transformers\n```")
-    st.stop()
+def simple_sentiment_analysis(text):
+    text = text.lower()
 
-# ----------------------------
-# 감정 분석 파이프라인 로드
-# ----------------------------
-@st.cache_resource
-def load_sentiment_pipeline():
-    return pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
-
-sentiment_pipeline = load_sentiment_pipeline()
+    positive_keywords = ["좋아", "행복", "즐거", "신나", "기쁨", "만족"]
+    negative_keywords = ["슬퍼", "우울", "짜증", "화나", "싫어", "힘들"]
+    
+    # 긍정 감정 판별
+    if any(word in text for word in positive_keywords):
+        return "긍정 (기분 좋아요)"
+    # 부정 감정 판별
+    elif any(word in text for word in negative_keywords):
+        return "부정 (기분 안 좋아요)"
+    # 나머지는 중립
+    else:
+        return "중립 (보통)"
 
 # ----------------------------
 # 기분별 음식 추천 데이터
@@ -59,30 +59,18 @@ mood_foods = {
 # ----------------------------
 # Streamlit 앱 구성
 # ----------------------------
-st.set_page_config(page_title="AI 감정 음식 추천", page_icon="🤖🍽️", layout="centered")
-st.title("🤖 기분 입력 → AI 감정 분석 → 음식 추천")
-st.write("한국어로 기분을 입력하면, AI가 감정을 분석해 어울리는 음식을 추천해드려요!")
+st.set_page_config(page_title="간단 AI 감정 음식 추천", page_icon="🍽️", layout="centered")
+st.title("🍽️ 기분 입력 → 간단 감정 분석 → 음식 추천")
+st.write("지금 기분을 입력하면 간단한 감정 분석기를 통해 어울리는 음식을 추천해드려요!")
 
 # 텍스트 입력 받기
-user_input = st.text_input("지금 어떤 기분이신가요? (예: '오늘 너무 기뻐요!')")
+user_input = st.text_input("지금 어떤 기분이신가요? (예: '오늘 너무 행복해요')")
 
 if user_input:
-    with st.spinner("AI가 기분을 분석 중이에요..."):
-        result = sentiment_pipeline(user_input)[0]
-        label = result["label"]  # '1 star' ~ '5 stars'
-        score = result["score"]
-
-    # 점수 기반 감정 구간 설정
-    if label in ["5 stars", "4 stars"]:
-        mood = "긍정 (기분 좋아요)"
-    elif label == "3 stars":
-        mood = "중립 (보통)"
-    else:
-        mood = "부정 (기분 안 좋아요)"
-
+    mood = simple_sentiment_analysis(user_input)
     food_info = mood_foods[mood]
 
-    st.success(f"**AI 감정 분석 결과:** {label} → {mood} (신뢰도: {score:.2f})")
+    st.success(f"**분석 결과:** {mood}")
 
     # 카드 스타일로 결과 표시
     st.markdown(f"""
