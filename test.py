@@ -66,13 +66,13 @@ mood_foods = {
 # ----------------------------
 # 4. Streamlit 앱 화면 구성
 # ----------------------------
-st.set_page_config(page_title="음식 추천 웹앱", layout="centered")
+st.set_page_config(page_title="음식 추천 웹앱", layout="centered")   #전체 페이지 구성
 
 st.title("🍴 기분에 맞는 음식 추천 웹앱")
 st.write("👉 기분을 입력하면 감정 분석을 통해 음식, 레시피, 칼로리, 추천 이유를 알려드립니다!")
 
 # 사용자 입력
-user_input = st.text_input("지금 기분을 자유롭게 입력해주세요 (예: '오늘 너무 우울해요')")
+user_input = st.text_input("지금 기분을 자유롭게 입력해주세요 (예: '오늘 너무 우울해요')")  #user_input 변수
 
 # ----------------------------
 # 5. 결과 출력
@@ -82,16 +82,16 @@ if user_input:
     food_info = random.choice(mood_foods[mood])      # 해당 감정에 맞는 음식 중 랜덤 선택
 
     # 감정 결과
-    st.success(f"🧠 감정 분석 결과: **{mood}**")
+    st.success(f"🧠 감정 분석 결과: **{mood}**")  #출력 함수로 긍정적인 기분일 때
 
     # 추천 음식
-    st.subheader(f"🎯 추천 음식: {food_info['음식']}")
+    st.subheader(f"🎯 추천 음식: {food_info['음식']}")  #소제목
 
     # 레시피
-    st.write(f"📖 레시피: {food_info['레시피']}")
+    st.write(f"📖 레시피: {food_info['레시피']}")   #일반텍스트
 
     # 칼로리
     st.write(f"🔥 예상 칼로리: **{food_info['칼로리']} kcal**")
 
     # 추천 이유
-    st.info(f"💡 추천 이유: {food_info['이유']}")
+    st.info(f"💡 추천 이유: {food_info['이유']}")   #변수 선언언
